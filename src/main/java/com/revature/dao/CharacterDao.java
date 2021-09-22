@@ -108,24 +108,49 @@ public class CharacterDao implements CharacterDaoI {
 	}
 	
 	@Override
-	public void updateCharacter(int character_id, String fname, String lname, String cl, String alignment) {
+	public void updateCharacter(int character_id, String fname, String lname, String race, String cl, String alignment) {
+		Race r = rDao.getRaceByName(race);
 		Class c = cDao.getClassByName(cl);
-		this.updateCharacter(character_id, fname, lname, c, alignment);
+		this.updateCharacter(character_id, fname, lname, r, c, alignment);
 	}
 	
 	@Override
-	public void updateCharacter(int character_id, String fname, String lname, Class c, String alignment) {
+	public void updateCharacter(int character_id, String fname, String lname, String race, Class cl, String alignment) {
+		Race r = rDao.getRaceByName(race);
+		this.updateCharacter(character_id, fname, lname, r, cl, alignment);
+	}
+	
+	@Override
+	public void updateCharacter(int character_id, String fname, String lname, Race race, String cl, String alignment) {
+		Class c = cDao.getClassByName(cl);
+		this.updateCharacter(character_id, fname, lname, race, c, alignment);
+	}
+	
+	@Override
+	public void updateCharacter(int character_id, String fname, String lname, Race r, Class c, String alignment) {
 		try(Connection conn = ConnectionUtil.getConnection()){
-			String query = "UPDATE CHARACTERS SET f_name = ?, l_name = ?, class_id_fk = ?, alignment = ? WHERE character_id = ?;";
+			String query = "UPDATE CHARACTERS SET f_name = ?, l_name = ?, race_id_fk = ?, class_id_fk = ?, alignment = ? WHERE character_id = ?;";
 			
 			PreparedStatement ps = conn.prepareStatement(query);
 			ps.setString(1, fname);
 			ps.setString(2, lname);
+			ps.setInt(3, r.getRace_id());
 			ps.setInt(4,c.getClass_id());
 			ps.setString(5, alignment);
 			ps.setInt(6, character_id);
 			ps.executeUpdate();
 			
+			query = "update abilityscores set str = ?, dex = ?, con = ?, inte = ?, wis = ?, cha = ? where character_id_fk = ?";
+			ps = conn.prepareStatement(query);
+			HashMap<String, Integer> hm = genStats(r, c);
+			ps.setInt(1, hm.get("str"));
+			ps.setInt(2, hm.get("dex"));
+			ps.setInt(3, hm.get("con"));
+			ps.setInt(4, hm.get("inte"));
+			ps.setInt(5, hm.get("wis"));
+			ps.setInt(6, hm.get("cha"));
+			ps.setInt(7, character_id);
+			ps.execute();
 			System.out.println("Character updated:");
 			System.out.println(getCharacterByName(fname, lname).toString());
 		}

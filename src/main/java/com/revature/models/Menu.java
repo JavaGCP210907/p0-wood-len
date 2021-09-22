@@ -25,6 +25,7 @@ public class Menu {
 		
 		boolean displayMenu = true;
 		while(displayMenu) {
+			int numChars = chDao.getCharacters().size();
 			System.out.println(".:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:");
 			System.out.println(":  Hail and well met, adventurer. What action would you like to take?  °");
 			System.out.println("°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:·°·");
@@ -77,16 +78,22 @@ public class Menu {
 				switch(input) {
 					case "all":
 						ArrayList<Character> cl = chDao.getCharacters();
-						for(Character c : cl) {
-							if(alt) {
-								alt = false;
-								System.out.println(".:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:");
+						if(cl.size() != 0) {
+							for(Character c : cl) {
+								if(alt) {
+									alt = false;
+									System.out.println(".:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:");
+								}
+								else {
+									alt = true;
+									System.out.println("°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:·°·");
+								}
+								System.out.println(c.toString());
 							}
-							else {
-								alt = true;
-								System.out.println("°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:·°·");
-							}
-							System.out.println(c.toString());
+						}
+						else {
+							System.out.println(".:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:");
+							System.out.println("There are currently no characters.");
 						}
 						break;
 					case "one":
@@ -112,131 +119,159 @@ public class Menu {
 						System.out.println("*·. Character's last name?");
 						System.out.print(">>> ");
 						lname = scan.nextLine();
-						System.out.println(".·* Character's race?");
-						System.out.print(">>> ");
-						String race = scan.nextLine();
-						System.out.println("*·. Character's class?");
-						System.out.print(">>> ");
-						String cla = scan.nextLine();
-						System.out.println(".·* Character's alignment?");
-						System.out.print(">>> ");
-						String alignment = scan.nextLine();
-						System.out.println(".:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:");
-						chDao.createCharacter(fname, lname, race, cla, alignment);
-						log.info("User created new character: " + fname + " " + lname);
+						Character chara = chDao.getCharacterByName(fname, lname);
+						if(chara.getF_name() == null) {
+							System.out.println(".·* Character's race?");
+							System.out.print(">>> ");
+							String race = scan.nextLine();
+							System.out.println("*·. Character's class?");
+							System.out.print(">>> ");
+							String cla = scan.nextLine();
+							System.out.println(".·* Character's alignment?");
+							System.out.print(">>> ");
+							String alignment = scan.nextLine();
+							System.out.println(".:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:");
+							chDao.createCharacter(fname, lname, race, cla, alignment);
+							log.info("User created new character: " + fname + " " + lname);
+						}
+						else {
+							System.out.println(".:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:");
+							System.out.println("Character already exists. The character's name must be unique.");
+						}
 						break;
 					case "update":
 						boolean no = true;
 						boolean exit = false;
 						Character ch = null;
-						while(no) {
-							System.out.println("*·. Which character would you like to update?");
-							System.out.println(".·* Character's first name?");
-							System.out.print(">>> ");
-							fname = scan.nextLine();
-							System.out.println("*·. Character's last name?");
-							System.out.print(">>> ");
-							lname = scan.nextLine();
-							ch = chDao.getCharacterByName(fname, lname);
-							if(ch.getF_name() != null) {
-								System.out.println(".:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:");
-								System.out.println(ch);
-								System.out.println("°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:·°·");
-								System.out.println(".·* Is this the character you'd like to update? (y/n)");
+						if(chDao.getCharacters().size() != 0) {
+							while(no) {
+								System.out.println("*·. Which character would you like to update?");
+								System.out.println(".·* Character's first name?");
 								System.out.print(">>> ");
-								String yn = scan.nextLine();
-								yn.toLowerCase();
-								if(yn.equals("y") || yn.equals("yes")) {
-									no = false;
+								fname = scan.nextLine();
+								System.out.println("*·. Character's last name?");
+								System.out.print(">>> ");
+								lname = scan.nextLine();
+								ch = chDao.getCharacterByName(fname, lname);
+								if(ch.getF_name() != null) {
+									System.out.println(".:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:");
+									System.out.println(ch);
+									System.out.println("°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:·°·");
+									System.out.println(".·* Is this the character you'd like to update? (yes, no, cancel)");
+									System.out.print(">>> ");
+									String yn = scan.nextLine();
+									yn.toLowerCase();
+									if(yn.equals("y") || yn.equals("yes")) {
+										no = false;
+									}
+									else if(yn.equals("cancel")) {
+										no = false;
+										exit = true;
+									}
+									else if(!yn.equals("n") && !yn.equals("no")) {
+										System.out.println(yn + " is not a recognized command.");
+									}
 								}
-								else if(yn.equals("back")) {
-									no = false;
-									exit = true;
+								else {
+									System.out.println("Character not found");
 								}
-								else if(!yn.equals("n") && !yn.equals("no")) {
-									System.out.println(yn + " is not a recognized command.");
-								}
+								
 							}
-							else {
-								System.out.println("Character not found");
+							if(!exit) {
+								System.out.println("*·. Please input new information, or press enter to keep current information.");
+								System.out.println(".·* Character's first name?");
+								System.out.print(">>> ");
+								fname = scan.nextLine();
+								if(fname.equals("")) {
+									fname = ch.getF_name();
+								}
+								System.out.println("*·. Character's last name?");
+								System.out.print(">>> ");
+								lname = scan.nextLine();
+								if(lname.equals("")) {
+									lname = ch.getL_name();
+								}
+								System.out.println(".·* Character's race?");
+								System.out.print(">>> ");
+								String race = scan.nextLine();
+								System.out.println("*·. Character's class?");
+								System.out.print(">>> ");
+								String cla = scan.nextLine();
+								System.out.println(".·* Character's alignment?");
+								System.out.print(">>> ");
+								String alignment = scan.nextLine();
+								if(alignment.equals("")) {
+									alignment = ch.getAlignment();
+								}
+								System.out.println(".:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:");
+								if(cla.equals("") && race.equals("")) {
+									chDao.updateCharacter(ch.getCharacter_id(), fname, lname, ch.getRace(), ch.getCl(), alignment);
+								}
+								else if(cla.equals("")) {
+									chDao.updateCharacter(ch.getCharacter_id(), fname, lname, race, ch.getCl(), alignment);
+								}
+								else if(race.equals("")) {
+									chDao.updateCharacter(ch.getCharacter_id(), fname, lname, ch.getRace(), cla, alignment);
+								}
+								else {
+									chDao.updateCharacter(ch.getCharacter_id(), fname, lname, race, cla, alignment);
+								}
+								log.info("User updated character: " + fname + " " + lname);
 							}
-							
 						}
-						if(!exit) {
-							System.out.println("*·. Please input new information, or press enter to keep current information.");
-							System.out.println(".·* Character's first name?");
-							System.out.print(">>> ");
-							fname = scan.nextLine();
-							if(fname.equals("")) {
-								fname = ch.getF_name();
-							}
-							System.out.println("*·. Character's last name?");
-							System.out.print(">>> ");
-							lname = scan.nextLine();
-							if(lname.equals("")) {
-								lname = ch.getL_name();
-							}
-							System.out.println("*·. Character's class?");
-							System.out.print(">>> ");
-							cla = scan.nextLine();
-							System.out.println(".·* Character's alignment?");
-							System.out.print(">>> ");
-							alignment = scan.nextLine();
-							if(alignment.equals("")) {
-								alignment = ch.getAlignment();
-							}
+						else {
 							System.out.println(".:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:");
-							if(cla.equals("")) {
-								chDao.updateCharacter(ch.getCharacter_id(), fname, lname, ch.getCl(), alignment);
-							}
-							else {
-								chDao.updateCharacter(ch.getCharacter_id(), fname, lname, cla, alignment);
-							}
-							log.info("User updated character: " + fname + " " + lname);
+							System.out.println("No characters to update.");
 						}
 						break;
 					case "delete":
-						no = true;
-						ch = null;
-						exit = false;
-						while(no) {
-							System.out.println("*·. Which character would you like to delete?");
-							System.out.println(".·* Character's first name?");
-							System.out.print(">>> ");
-							fname = scan.nextLine();
-							System.out.println("*·. Character's last name?");
-							System.out.print(">>> ");
-							lname = scan.nextLine();
-							ch = chDao.getCharacterByName(fname, lname);
-							if(ch.getF_name() != null) {
-								System.out.println(".:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:");
-								System.out.println(ch);
-								System.out.println("°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:·°·");
-								System.out.println(".·* Is this the character you'd like to delete? (y/n)");
+						if(chDao.getCharacters().size() != 0) {
+							no = true;
+							ch = null;
+							exit = false;
+							while(no) {
+								System.out.println("*·. Which character would you like to delete?");
+								System.out.println(".·* Character's first name?");
 								System.out.print(">>> ");
-								String yn = scan.nextLine();
-								yn.toLowerCase();
-								if(yn.equals("y") || yn.equals("yes")) {
-									no = false;
+								fname = scan.nextLine();
+								System.out.println("*·. Character's last name?");
+								System.out.print(">>> ");
+								lname = scan.nextLine();
+								ch = chDao.getCharacterByName(fname, lname);
+								if(ch.getF_name() != null) {
+									System.out.println(".:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:");
+									System.out.println(ch);
+									System.out.println("°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:·°·");
+									System.out.println(".·* Is this the character you'd like to delete? (yes, no, cancel)");
+									System.out.print(">>> ");
+									String yn = scan.nextLine();
+									yn.toLowerCase();
+									if(yn.equals("y") || yn.equals("yes")) {
+										no = false;
+									}
+									else if(yn.equals("cancel")) {
+										no = false;
+										exit = true;
+									}
+									else if(!yn.equals("n") && !yn.equals("no")) {
+										System.out.println(yn + " is not a recognized command.");
+									}
 								}
-								else if(yn.equals("back")) {
-									no = false;
-									exit = true;
+								else {
+									System.out.println("Character not found");
 								}
-								else if(!yn.equals("n") && !yn.equals("no")) {
-									System.out.println(yn + " is not a recognized command.");
-								}
+								
 							}
-							else {
-								System.out.println("Character not found");
+							if(!exit) {
+								System.out.println(".:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:");
+								chDao.removeCharacter(ch.getCharacter_id());
+								System.out.println("Character " + ch.getF_name() + " " + ch.getL_name() + " was removed");
+								log.info("User deleted character: " + ch.getF_name() + " " + ch.getL_name());
 							}
-							
 						}
-						if(!exit) {
+						else {
 							System.out.println(".:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:");
-							chDao.removeCharacter(ch.getCharacter_id());
-							System.out.println("Character " + ch.getF_name() + " " + ch.getL_name() + " was removed");
-							log.info("User deleted character: " + ch.getF_name() + " " + ch.getL_name());
+							System.out.println("No characters to delete.");
 						}
 						break;
 					case "back":
