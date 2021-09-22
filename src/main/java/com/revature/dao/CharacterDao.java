@@ -1,15 +1,18 @@
 package com.revature.dao;
 
 import java.sql.Connection;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Collections;
 import java.util.HashMap;
 
 import com.revature.utils.Dice;
+import com.revature.utils.NameGenerator;
 import com.revature.models.Character;
 import com.revature.models.Class;
 import com.revature.models.Race;
@@ -19,6 +22,7 @@ public class CharacterDao implements CharacterDaoI {
 
 	private ClassDao cDao = new ClassDao();
 	private RaceDao rDao = new RaceDao();
+	private Dice dice = new Dice();
 	
 	@Override
 	public ArrayList<Character> getCharacters(){
@@ -178,6 +182,22 @@ public class CharacterDao implements CharacterDaoI {
 		}
 	}
 	
+	@Override
+	public void createRandomCharacter() {
+		ArrayList<String> name = NameGenerator.generateName();
+		Character chara = this.getCharacterByName(name.get(0), name.get(1));
+		while(chara.getF_name() != null) {
+			name = NameGenerator.generateName();
+			chara = this.getCharacterByName(name.get(0), name.get(1));
+		}
+		List<Class> cla = cDao.getClasses();
+		String className = cDao.getNameByID(dice.roll(cla.size()));
+		List<Race> r = rDao.getRaces();
+		String race = rDao.getNameByID(dice.roll(r.size()));
+		String[] aligns = {"Lawful Good", "Neutral Good", "Chaotic Good", "Lawful Neutral", "True Neutral", "Chaotic Neutral", "Lawful Evil", "Neutral Evil", "Chaotic Evil"};
+		String align = aligns[dice.roll(aligns.length)-1];
+		createCharacter(name.get(0), name.get(1), race, className, align);
+	}
 	
 	@Override
 	public void createCharacter(String fname, String lname, String race, String cl, String alignment) {
@@ -257,7 +277,6 @@ public class CharacterDao implements CharacterDaoI {
 	}
 	
 	private ArrayList<Integer> rollAbilities(){
-		Dice dice = new Dice();
 		ArrayList<Integer> abilityScores = new ArrayList<>();
 		ArrayList<Integer> temp = new ArrayList<>();
 		for(int i = 0; i < 6; i++) {

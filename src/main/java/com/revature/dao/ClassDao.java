@@ -95,5 +95,26 @@ public class ClassDao implements ClassDaoI {
 		}
 		return null;
 	}
+	
+	@Override
+	public String getNameByID(int id) {
+		try(Connection conn = ConnectionUtil.getConnection()){
+			ResultSet rs = null;
+			String query =  "SELECT classes.name FROM classes WHERE class_id = ?;";
+			PreparedStatement ps = conn.prepareStatement(query);
+			ps.setInt(1, id);
+			rs = ps.executeQuery();
+			String s = "";
+			while(rs.next()) {
+				s = rs.getString("name");
+			}
+			return s;
+		}
+		catch(SQLException e) {
+			System.out.println("Error in class getNameByID");
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 }

@@ -102,10 +102,25 @@ public class RaceDao implements RaceDaoI {
 		}
 		return null;
 	}
-
+	
 	@Override
-	public List<Race> getRaceByStat(String stat) {
-		// TODO Auto-generated method stub
+	public String getNameByID(int id) {
+		try(Connection conn = ConnectionUtil.getConnection()){
+			ResultSet rs = null;
+			String query =  "SELECT races.name FROM races WHERE race_id = ?;";
+			PreparedStatement ps = conn.prepareStatement(query);
+			ps.setInt(1, id);
+			rs = ps.executeQuery();
+			String s = "";
+			while(rs.next()) {
+				s = rs.getString("name");
+			}
+			return s;
+		}
+		catch(SQLException e) {
+			System.out.println("Error in race getNameByID");
+			e.printStackTrace();
+		}
 		return null;
 	}
 

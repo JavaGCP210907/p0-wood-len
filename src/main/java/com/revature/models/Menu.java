@@ -65,14 +65,15 @@ public class Menu {
 			while(displayMenu) {
 				System.out.println(".:·°·:.:·°·:.:·°·:.:");
 				System.out.println(":  Character Menu  °");
-				System.out.println("°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·");
-				System.out.println("   *·. all    - View all Characters       .·*");
-				System.out.println("   .·* one    - View a Specific Character *·.");
-				System.out.println("   *·. create - Create a Character        .·*");
-				System.out.println("   .·* update - Update a Character        *·.");
-				System.out.println("   *·. delete - Delete a Character        .·*");
-				System.out.println("   .·* back   - Back to Main Menu         *·.");
-				System.out.println("   °·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·");
+				System.out.println("°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·.·");
+				System.out.println("   *·. all    - View all Characters        .·*");
+				System.out.println("   .·* one    - View a Specific Character  *·.");
+				System.out.println("   *·. create - Create a Character         .·*");
+				System.out.println("   .·* random - Create a Random Character  *·.");
+				System.out.println("   *·. update - Update a Character         .·*");
+				System.out.println("   .·* delete - Delete a Character         *·.");
+				System.out.println("   *·. back   - Back to Main Menu          .·*");
+				System.out.println("   .:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.");
 				System.out.print(">>> ");
 				String input = scan.nextLine();
 				switch(input) {
@@ -138,6 +139,10 @@ public class Menu {
 							System.out.println(".:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:");
 							System.out.println("Character already exists. The character's name must be unique.");
 						}
+						break;
+					case "random":
+						System.out.println(".:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:.:·°·:");
+						chDao.createRandomCharacter();
 						break;
 					case "update":
 						boolean no = true;
