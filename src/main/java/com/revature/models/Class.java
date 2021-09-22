@@ -1,53 +1,45 @@
 package com.revature.models;
 
-import java.sql.Array;
-import java.sql.SQLException;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Class {
 	private int class_id;
 	private String name;
-	private boolean casting;
 	private String priority1;
 	private String priority2;
 	private String save1;
 	private String save2;
-	private String[] ability2;
+	private List<String> abilities;
 	
-	public Class(int class_id, String name, boolean casting, String priority1, String priority2, String save1,
-			String save2, Array abilities) {
+	public Class() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public Class(int class_id, String name, String priority1, String priority2, String save1, String save2) {
 		super();
 		this.class_id = class_id;
 		this.name = name;
-		this.casting = casting;
 		this.priority1 = priority1;
 		this.priority2 = priority2;
 		this.save1 = save1;
 		this.save2 = save2;
-		try {
-			ability2 = (String[])abilities.getArray();
-		}
-		catch(SQLException e) {
-			System.out.println("Error in Class Constructor");
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public String toString() {
-		return "Class [name=" + name + ", abilities=" + Arrays.toString(ability2) + "]";
+		this.abilities= new ArrayList<>();
 	}
 	
-	public String abilityToString() {
-		return Arrays.toString(ability2);
+	@Override
+	public String toString() {
+		return "Class: " + name +
+		        "\n Stat Priorities: " + priority1 + ", " + priority2  +
+		        "\n Saving Stats: " + save1 + ", " + save2 + 
+		        "\n Abilities: " + abilities;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((ability2 == null) ? 0 : ability2.hashCode());
-		result = prime * result + (casting ? 1231 : 1237);
 		result = prime * result + class_id;
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((priority1 == null) ? 0 : priority1.hashCode());
@@ -66,13 +58,6 @@ public class Class {
 		if (getClass() != obj.getClass())
 			return false;
 		Class other = (Class) obj;
-		if (ability2 == null) {
-			if (other.ability2 != null)
-				return false;
-		} else if (!ability2.equals(other.ability2))
-			return false;
-		if (casting != other.casting)
-			return false;
 		if (class_id != other.class_id)
 			return false;
 		if (name == null) {
@@ -119,14 +104,6 @@ public class Class {
 		this.name = name;
 	}
 
-	public boolean isCasting() {
-		return casting;
-	}
-
-	public void setCasting(boolean casting) {
-		this.casting = casting;
-	}
-
 	public String getPriority1() {
 		return priority1;
 	}
@@ -159,13 +136,15 @@ public class Class {
 		this.save2 = save2;
 	}
 
-	public String[] getAbility2() {
-		return ability2;
+
+	public List<String> getAbilities() {
+		return abilities;
 	}
 
-	public void setAbility2(String[] ability2) {
-		this.ability2 = ability2;
+	public void setAbilities(String a) {
+		abilities.add(a);
 	}
+	
 	
 	
 }

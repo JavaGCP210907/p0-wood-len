@@ -1,153 +1,217 @@
-
--- 0NF
-CREATE TABLE avengers(
-	hero_name TEXT,
-	hero_power TEXT,
-	real_name TEXT,
-	home_base TEXT,
-	home_address TEXT
+CREATE TABLE classes(
+	class_id serial PRIMARY KEY,
+	name TEXT,
+	casting bool,
+	priority1 TEXT,
+	priority2 TEXT,
+	save1 TEXT,
+	save2 TEXT
 );
 
 
-INSERT INTO avengers(hero_name, hero_power, real_name, home_base, home_address)
-VALUES ('Spider-man', 'Webby Boi', 'Peter Parker', 'Aunt May''s house', 'New York'),
-	   ('Hawkeye', 'bow and arrow',  'Clint Barton', 'A Farm', 'Upstate New York');
+INSERT INTO classes(name, casting, priority1, priority2, save1, save2)
+VALUES ('Barbarian', FALSE, 'str','con','str', 'con'),
+	   ('Bard', TRUE, 'cha', 'inte', 'dex', 'cha'),
+	   ('Cleric', TRUE, 'wis', 'cha','wis', 'cha'),
+	   ('Druid', TRUE, 'wis', 'dex', 'inte', 'wis'),
+	   ('Fighter', FALSE, 'str', 'con','str', 'con'),
+	   ('Monk', FALSE, 'dex', 'wis', 'str', 'dex'),
+	   ('Paladin', TRUE, 'cha', 'str', 'wis', 'cha'),
+	   ('Ranger', TRUE, 'wis', 'dex', 'str', 'dex'),
+	   ('Rogue', FALSE, 'dex', 'cha', 'dex', 'inte'),
+	   ('Sorcerer', TRUE, 'cha', 'inte', 'con', 'cha'),
+	   ('Warlock', TRUE, 'cha', 'inte', 'wis', 'cha'),
+	   ('Wizard', TRUE, 'inte', 'wis', 'inte', 'wis');
 
-SELECT * FROM avengers;	  
+SELECT * FROM classes;
 
-DROP TABLE IF EXISTS avengers;
-
--- 1NF
--- must have a primary key, can be a composite key, columns must be atomic
-CREATE TABLE avengers(
-	hero_name TEXT,
-	hero_power TEXT,
-	f_name TEXT,
-	l_name TEXT,
-	home_base TEXT,
-	street_number TEXT,
-	city TEXT,
-	state char(2),
-	PRIMARY KEY(f_name, l_name)
+CREATE TABLE abilities(
+	ability_id serial PRIMARY KEY,
+	ability TEXT
 );
 
-INSERT INTO avengers(hero_name, hero_power, f_name, l_name, home_base, street_number, city, state)
-VALUES ('Spider-man', 'Webby Boi', 'Peter', 'Parker', 'Aunt May''s house', '225', 'Queens', 'NY'),
-	   ('Spider-man', 'Webby Shocky Boi', 'Miles', 'Morales', 'Aunt May''s house', '225', 'Queens', 'NY'),
-	   ('Thor', 'Hammer Boi',  'Thor', 'Odinson', 'Asgard', '5678', 'New Asgard', 'NO');
-	   
+INSERT INTO abilities(ability)
+VALUES ('2 Rage with +2 to damage'), ('Unarmored Defense'),
+	   ('2 cantrips'), ('2 1st level spells'), ('Bardic Inspiration'),
+	   ('3 cantrips'), ('Divine Domain'),
+	   ('Druidic'),
+	   ('Great Weapon Fighter'), ('Second Wind'),
+	   ('Unarmored Defense'), ('Martial Arts'),
+	   ('Divine Sense'), ('Lay on Hands'),
+	   ('Favored Enemy'), ('Natural Explorer'),
+	   ('Expertise'), ('Sneak Attack'), ('Thieve''s Cant'),
+	   ('4 cantrips'), ('+1 hp'),
+	   ('Otherworldy Patron'),
+	   ('Arcane Recovery');
 
--- 2NF
--- Remove partial dependencies
--- You can eliminate partial dependencies by having a single column primary KEY, no composite key
-CREATE TABLE avengers(
-	avenger_id serial PRIMARY KEY,
-	hero_name TEXT,
-	hero_power TEXT,
-	f_name TEXT,
-	l_name TEXT,
-	home_base TEXT,
-	street_number TEXT,
-	city TEXT,
-	state char(2)
+CREATE TABLE class_abilities(
+	classability_id serial PRIMARY KEY,
+	class_id_fk int REFERENCES classes(class_id),
+	ability_id_fk int REFERENCES abilities(ability_id)
 );
 
-INSERT INTO avengers(hero_name, hero_power, f_name, l_name, home_base, street_number, city, state)
-VALUES ('Spider-man', 'Webby Boi', 'Peter', 'Parker', 'Aunt May''s house', '225', 'Queens', 'NY'),
-	   ('Spider-man', 'Webby Shocky Boi', 'Miles', 'Morales', 'Aunt May''s house', '225', 'Queens', 'NY'),
-	   ('Thor', 'Hammer Boi',  'Thor', 'Odinson', 'Asgard', '5678', 'New Asgard', 'NO');
-	   
-SELECT * FROM avengers;
+SELECT name, ability FROM classes JOIN class_abilities ON class_id_fk = class_id JOIN abilities ON ability_id = ability_id_fk;
 
--- 3NF
--- Remove Transitive Dependencies (by separating them into new tables)
--- the only columns depended on should be primary keys
+-- 2 cantrips 3, 2 1st level spells 4
+INSERT INTO class_abilities(class_id_fk, ability_id_fk)
+VALUES (1, 1), (1, 2),
+	   (2, 3), (2, 4), (2,5),
+	   (3, 6), (3, 4), (3,7),
+	   (4, 3), (4, 4), (4,8),
+	   (5, 9), (5, 10),
+	   (6, 11), (6, 12),
+	   (7, 13), (7, 14),
+	   (8, 15), (8, 16),
+	   (9, 17), (9, 18), (9,19),
+	   (10, 20), (10, 4), (10, 21),
+	   (11, 3), (11, 4), (11, 22),
+	   (12, 6), (12, 4), (12, 23);
 
-DROP TABLE IF EXISTS avengers;
 
-CREATE TABLE homes(
-	home_base TEXT PRIMARY KEY,
-	street_number TEXT,
-	city TEXT,
-	state char(2)
+SELECT * FROM class_abilities;
+
+------------------------
+SELECT classes.name, abilities.ability, classes.priority1, classes.priority2, classes.save1, classes.save2 
+FROM classes 
+LEFT OUTER JOIN class_abilities 
+ON classes.class_id = class_abilities.class_id_fk
+JOIN abilities
+ON abilities.ability_id = class_abilities.ability_id_fk;
+--WHERE classes.name = 'Barbarian';
+-----------------------
+
+
+-------------------------------------------------------------------------
+
+CREATE TABLE races(
+	race_id serial PRIMARY KEY,
+	name TEXT
 );
 
-INSERT INTO homes (home_base, street_number, city, state)
-VALUES ('Stark Tower', '455', 'Manhattan', 'NY'),
-	   ('Sanctum Sanctorum', '860', 'Greenwich', 'CT'),
-	   ('Avengers Tower', '763', 'New York', 'NY');
-	   
-CREATE TABLE avengers(
-	hero_id serial PRIMARY KEY,
-	hero_name TEXT,
-	hero_power TEXT,
-	f_name TEXT,
-	l_name TEXT,
-	home_base_fk TEXT REFERENCES homes(home_base)
+--DROP TABLE races CASCADE;
+
+INSERT INTO races(name)
+VALUES ('Dragonborn'),
+	   ('Dwarf'),
+	   ('Elf'),
+	   ('Gnome'),
+	   ('Half-Elf'),
+	   ('Halfling'),
+	   ('Half-Orc'),
+	   ('Human'),
+	   ('Tiefling');
+
+CREATE TABLE traits(
+	trait_id serial PRIMARY KEY,
+	trait TEXT
 );
 
-INSERT INTO avengers(hero_name, hero_power, f_name, l_name, home_base_fk)
-VALUES ('Iron Man', 'Money', 'Tony', 'Stark', 'Stark Tower'),
-	   ('Doctor Strange', 'Time Wizard', 'Stephen', 'Strange', 'Sanctum Sanctorum');
+INSERT INTO traits(trait)
+VALUES ('Breath Weapon'), ('Fire Resistance'),
+	   ('Darkvision'), ('Dwarven Resilience'),
+	   ('Trance'),
+	   ('Gnome Cunning'),
+	   ('Skill Versatility'),
+	   ('Lucky'), ('Brave'), ('Halfling Nimbleness'),
+	   ('Menacing'), ('Relentless Endurance'),
+	   ('Extra Language'),
+	   ('Hellish Resistance'), ('Infernal Legacy');
+	  
+CREATE TABLE race_trait(
+	traitxrace_id serial PRIMARY KEY,
+	trait_id_fk int REFERENCES traits(trait_id),
+	race_id_fk int REFERENCES races(race_id)
+);
+
+SELECT * FROM adds;
+SELECT races.name, traits.trait FROM races 
+LEFT OUTER JOIN race_trait 
+ON races.race_id = race_trait.race_id_fk
+JOIN traits
+ON traits.trait_id = race_trait.trait_id_fk;
 
 
-SELECT * FROM avengers;
+INSERT INTO race_trait(race_id_fk, trait_id_fk)
+VALUES (1, 1), (1, 2), 
+       (2, 3), (2, 4), 
+       (3, 3), (3, 5), 
+       (4, 3), (4, 6),
+       (5, 3), (5, 7),
+       (6, 8), (6, 9), (6, 10),
+       (7, 3), (7, 11), (7, 12),
+       (8, 13),
+       (9, 3), (9, 14), (9, 15);
+      
+CREATE TABLE adds(
+	add_id serial PRIMARY KEY,
+	race_id_fk int REFERENCES races(race_id),
+	str int,
+	dex int,
+	con int,
+	inte int,
+	wis int,
+	cha int
+);
 
--- joins
+INSERT INTO adds (race_id_fk, str, dex, con, inte, wis, cha)
+     -- r  s  d  co i  w  ch
+VALUES (1, 2, 0, 0, 0, 0, 1),
+	   (2, 0, 2, 0, 0, 0, 0),
+	   (3, 0, 2, 0, 0, 0, 0),
+	   (4, 0, 0, 0, 2, 0, 0),
+	   (5, 0, 1, 0, 1, 0, 2),
+	   (6, 0, 2, 0, 0, 0, 0),
+	   (7, 2, 0, 1, 0, 0, 0),
+	   (8, 1, 1, 1, 1, 1, 1),
+	   (9, 0, 0, 0, 1, 0, 2);
 
--- inner join
-SELECT * FROM avengers JOIN homes ON home_base = home_base_fk; -- INNER JOIN IS DEFAULT JOIN
---SELECT * FROM homes JOIN avengers ON home_base_fk = home_base;
+SELECT * FROM adds;
 
--- full outer join
-SELECT * FROM avengers FULL OUTER JOIN homes ON home_base = home_base_fk;
+---------------------
+SELECT races.race_id, races.name, traits.trait, adds.str, adds.dex, adds.con, adds.inte, adds.wis, adds.cha FROM races 
+LEFT OUTER JOIN race_trait 
+ON races.race_id = race_trait.race_id_fk
+JOIN traits
+ON traits.trait_id = race_trait.trait_id_fk
+JOIN adds
+ON adds.race_id_fk = races.race_id;
+---------------------
 
-
--- left outer join
-SELECT * FROM avengers LEFT JOIN homes ON home_base = home_base_fk;
-SELECT * FROM homes LEFT JOIN avengers ON home_base_fk = home_base;
-
--- right outer join
-SELECT * FROM avengers RIGHT JOIN homes ON home_base = home_base_fk;
-SELECT * FROM homes RIGHT JOIN avengers ON home_base_fk = home_base;
-
-
--- set operations
-
--- UNION
--- all distinct rows from each query, no duplicates
-SELECT home_base_fk FROM avengers UNION SELECT home_base FROM homes;
-
--- union ALL 
-SELECT home_base_fk FROM avengers UNION ALL SELECT home_base FROM homes;
-
--- intersect
-SELECT home_base_fk FROM avengers INTERSECT SELECT home_base FROM homes;
-
--- except
-SELECT home_base FROM homes EXCEPT SELECT home_base_fk FROM avengers;
+SELECT races.name, adds.str, adds.dex, adds.con, adds.inte, adds.wis, adds.cha 
+FROM adds JOIN races ON race_id = adds.race_id_fk;-- JOIN adds ON adds.race_id_fk=race_id;
 
 
--- Transaction and TCL
--- set up
 
-ALTER TABLE avengers ADD COLUMN active boolean;
-ALTER TABLE avengers ALTER COLUMN active SET DEFAULT TRUE;
+CREATE TABLE characters(
+	character_id serial PRIMARY KEY,
+	class_id_fk int REFERENCES classes(class_id),
+	race_id_fk int REFERENCES races(race_id),
+	f_name TEXT NOT NULL,
+	l_name TEXT NOT NULL,
+	alignment TEXT
+);
 
-TRUNCATE TABLE avengers;
+CREATE TABLE abilityscores(
+	abilityscore_id serial PRIMARY KEY,
+	character_id_fk int REFERENCES characters(character_id),
+	str int,
+	dex int,
+	con int,
+	inte int,
+	wis int,
+	cha int
+);
 
--- starting a new transaction
-BEGIN;
+SELECT * FROM CHARACTERS;
+SELECT character_id, f_name, l_name, classes.name, races.name,
+abilityscores.str, abilityscores.dex, abilityscores.con,
+abilityscores.inte, abilityscores.wis, abilityscores.cha
+FROM CHARACTERS JOIN classes ON class_id = class_id_fk
+JOIN races ON race_id = race_id_fk JOIN abilityscores
+ON character_id_fk = character_id;
 
-INSERT INTO avengers(hero_name, hero_power, f_name, l_name, home_base_fk)
-VALUES ('Hulk', 'mad', 'Bruce', 'Banner', 'Avengers Tower'),
-	   ('Black Panther', 'with cat-like tread', 'T''chala', 'Wakanda', 'Avengers Tower');
-	   
-UPDATE avengers SET active = FALSE WHERE hero_name= 'Hulk' OR hero_name='Black Panther';
 
-COMMIT; -- TRANSACTION ends;
+SELECT * FROM races JOIN adds ON race_id_fk = race_id WHERE race_id=1;
 
-SELECT * FROM avengers;
--- until you commit or rollback everything else you try to do in the database will be BLOCKED 
--- until you either finish the transaction or undo its changes.
--- rollback doesn't happen implicitly, call it in order to undo changes if a transaction failed.
+DELETE FROM abilityscores WHERE character_id_fk = 2;
+DELETE FROM CHARACTERS WHERE character_id = 2;
